@@ -1,7 +1,7 @@
 ---
 title: "Data transformation with dplyr"
 subtitle: "And make a plot"
-author: ""
+author: "Till Häussner"
 format:
   html:
     embed-resources: true
@@ -43,19 +43,36 @@ sanitation <- read_csv("data/jmp_wld_sanitation_long.csv")
 ## Task 1
 
 1.  Run all code chunks above.
+
 2.  Use the `glimpse()` function to get an overview of the data set.
+
 3.  How many variables are in the data set?
+
+    8 columns -\> 8 variables
 
 ```{r}
 
+glimpse(sanitation)
 ```
 
 ## Task 2
 
 1.  Use the `count()` function with varname_short and varname_long to identify the definitions of the levels in these two variables.
 
+    1 san_bas basic sanitation services 14742
+
+    2 san_lim limited sanitation services 14742
+
+    3 san_od no sanitation facilities 14742
+
+    4 san_sm safely managed sanitation services 14742
+
+    5 san_unimp unimproved sanitation facilities 14742
+
 ```{r}
 
+sanitation |> 
+  count(varname_short, varname_long)
 ```
 
 ## Task 3
@@ -70,6 +87,8 @@ sanitation <- read_csv("data/jmp_wld_sanitation_long.csv")
 
 ```{r}
 
+sanitation_china_2000_2020 <- sanitation |> 
+  filter(iso3 == "CHN", year == 2000 | year == 2020, varname_long != "safely managed sanitation services")
 ```
 
 ## Task 4
@@ -78,6 +97,8 @@ sanitation <- read_csv("data/jmp_wld_sanitation_long.csv")
 
 ```{r}
 
+sanitation_china_2000_2020 |> 
+  count(year)
 ```
 
 ## Task 5
@@ -101,6 +122,17 @@ geom_text(aes(label = round(percent, 1)),
 
 ```{r}
 
+ggplot(data = sanitation_china_2000_2020,
+       mapping = aes(x = residence,
+                     y = percent,
+                     fill = varname_long)) +
+  geom_col() +
+  facet_wrap(~year) +
+  scale_fill_colorblind() +
+  geom_text(aes(label = round(percent, 1)), 
+          position = position_stack(vjust = 0.5),
+          size = 3,
+          color = "white") 
 ```
 
 ## Task 6
@@ -108,13 +140,26 @@ geom_text(aes(label = round(percent, 1)),
 If you haven't worked with JMP indicators before, the following questions will be challenging to answer.
 
 1.  Look at the plot that you created. What do you notice about the order of the bars / order of the legend?
+
+    I haven't worked with JMP indicators before, but I will do my best to answer haha. The order of th bars vertically follows the order of the legend and vice versa.
+
 2.  What would you want to change?
+
+    I think it would be more intuitive to have the longest bars on the bottom, i.e. to flip the whole graph around.
+
 3.  Why did we remove "safely managed sanitation services" from the data set in Task 3?
+
+    Because all the NAs disrupt the data and the graph would look like this:
+
+    ![](images/clipboard-3325211339.png)
 
 ## Task 7
 
 1.  Run the code in the code chunk below.
+
 2.  What do you observe when you look at the code and plot?
+
+    The plot is faceted into fifteen different subplots corresponding to the three categories "national", "rural" and "urban" and the five categories of sanitation, each with their own adjusted axes.
 
 ```{r}
 
